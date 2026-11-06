@@ -44,7 +44,8 @@ dotfiles/
 │   └── .config/zsh/          # → ~/.config/zsh
 │       ├── tools.zsh         #   fzf, bun, autojump, keybind
 │       ├── aliases.zsh
-│       ├── functions.zsh     #   ff, to, gff, gto
+│       ├── functions.zsh     #   ff, to, gff, gto, brew()
+│       ├── secrets.zsh       #   tự sync secret khi mở terminal (quá 12h)
 │       └── local.zsh         #   (gitignored) config riêng từng máy
 ├── nvim/.config/nvim/        # → ~/.config/nvim  (xem mục Neovim)
 ├── rex/.config/rex/          # → ~/.config/rex   init.lua: keybind của Rex (theme, font lưu trong app)
@@ -236,6 +237,23 @@ Lưu ý:
 - Đừng đặt `GITHUB_TOKEN`/`GH_TOKEN` trừ khi token còn sống: `gh` ưu tiên biến này hơn phiên đăng nhập keyring.
   (PAT `GitHub Personal Access Token` hiện **đã hết hiệu lực**, GitHub trả 401, nên dòng mẫu trong note đang tắt.)
 
+### Tự sync định kỳ
+
+`zsh/.config/zsh/secrets.zsh` tự chạy `secrets-env refresh` **ở nền** khi bạn mở terminal, nếu lần sync gần nhất
+đã quá **12 giờ**. Tab đang mở không bị chậm, và Touch ID chỉ hỏi lúc bạn đang ngồi máy. Tab mở *sau khi* sync xong mới nhận biến mới.
+
+- **Không** tự sync khi: phiên SSH (không ai bấm Touch ID), shell không có terminal (script, snapshot của tool),
+  hoặc đang có lần sync khác chạy (nhiều tab mở cùng lúc thì chỉ chạy một lần, có khoá).
+- Nếu huỷ Touch ID hoặc để quá 60 giây, `op` báo `authorization timeout`. Các tab sau sẽ hiện **một dòng cảnh báo vàng**
+  cho tới khi `refresh` thành công, và không tự hỏi lại trước khi hết chu kỳ.
+- Tắt: `export SECRETS_ENV_AUTO=0`. Đổi chu kỳ: `export SECRETS_ENV_MAX_AGE_H=24`. Đặt cả hai trong `~/.config/zsh/local.zsh`.
+- Log: `~/.local/state/secrets/auto-sync.log`. Mốc thời gian: `~/.local/state/secrets/last-sync`.
+- Muốn sync ngay thì vẫn chạy tay `secrets-env refresh`.
+
+Vì sao không dùng LaunchAgent chạy theo lịch: app 1Password cần bạn xác nhận. Chạy lúc không có ai thì hộp thoại
+bật bất chợt, hoặc treo tới khi hết thời gian chờ. Muốn sync hoàn toàn tự động (cả khi chỉ SSH vào máy) thì phải dùng
+**service account** với một vault riêng, vì service account không đọc được vault Private. Chưa làm.
+
 ### Loại trừ theo máy
 
 Tag `shell-env` dùng chung cho mọi máy đăng nhập cùng tài khoản 1Password. Vì vậy item **của máy khác** (vd máy công ty)
@@ -292,6 +310,9 @@ Repo public, nên:
 ## Bối cảnh & quyết định
 
 Ghi lại để mang sang máy khác hoặc mở session mới (Claude, agent) vẫn có đủ ngữ cảnh. Mới nhất ở trên.
+
+**2026-11-06: tự sync khi mở terminal.** Chọn "refresh ở nền khi mở terminal nếu đã quá 12 giờ" thay cho LaunchAgent
+chạy theo lịch (app 1Password cần người xác nhận) và thay cho service account (phải chuyển secret sang vault riêng).
 
 **2026-11-06: Mac mini không nạp secret công ty.** `VSF-Dev-Env` là secret của máy công ty. Chặn nó bằng
 `~/.config/secrets-env/exclude` trên Mac mini, không gỡ tag `shell-env`, để máy công ty vẫn dùng được.
