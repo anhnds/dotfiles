@@ -184,7 +184,7 @@ Mọi token/API key nằm trong **1Password cloud**, không nằm trong repo hay
 
 | Cách | Khi nào dùng | Ví dụ |
 |---|---|---|
-| **A. Item tag `shell-env`**: mỗi field là một biến, **tên field = tên biến** | nhóm biến của một dự án, tạo item riêng | item `VSF-Dev-Env`: `JFROG_URL`, `JFROG_USER`, `JFROG_TOKEN`, `GL_VSF_TOKEN`, `ATLASSIAN_API_TOKEN` |
+| **A. Item tag `shell-env`**: mỗi field là một biến, **tên field = tên biến** | nhóm biến của một dự án, tạo item riêng | item `VSF-Dev-Env` (của máy công ty, **bị loại trừ trên Mac mini**): `JFROG_URL`, `JFROG_TOKEN`, ... |
 | **B. Template `op://`**: Secure Note **`shell-env-refs`** (tag `shell-env-refs`), mỗi dòng `TÊN=op://vault/item/[section/]field` | lấy từ item **có sẵn** (Login, API Credential...) mà không phải sửa item, hoặc tự đặt tên biến | `GITHUB_TOKEN=op://Private/GitHub Personal Access Token/token` |
 
 - Gắn thêm tag **`gui-env`** vào item (cách A) hoặc vào note (cách B) thì các biến đó cũng được đưa cho GUI app
@@ -235,6 +235,21 @@ Lưu ý:
 - Đừng đặt `GITHUB_TOKEN`/`GH_TOKEN` trừ khi token còn sống: `gh` ưu tiên biến này hơn phiên đăng nhập keyring.
   (PAT `GitHub Personal Access Token` hiện **đã hết hiệu lực**, GitHub trả 401, nên dòng mẫu trong note đang tắt.)
 
+### Loại trừ theo máy
+
+Tag `shell-env` dùng chung cho mọi máy đăng nhập cùng tài khoản 1Password. Vì vậy item **của máy khác** (vd máy công ty)
+thì chặn ở từng máy bằng file **`~/.config/secrets-env/exclude`**. File này nằm trên máy, không có trong dotfiles.
+Mỗi dòng ghi tên hoặc ID của một item/note, dòng `#` là comment:
+
+```
+# ~/.config/secrets-env/exclude trên Mac mini
+VSF-Dev-Env
+```
+
+Thêm hoặc bỏ một dòng → `secrets-env refresh` → `exec zsh`. `refresh` in ra các item bị bỏ qua.
+Không gỡ tag khỏi item trong 1Password, vì máy kia vẫn cần tag đó.
+Máy mới: tạo lại file này nếu máy đó cũng không được nạp item công ty.
+
 ### Secret quan trọng: `op run`, không vào cache
 
 Token production, khoá thanh toán... không nên nằm trong cache hay có trong mọi shell. Khai báo chúng trong một file
@@ -276,6 +291,10 @@ Repo public, nên:
 ## Bối cảnh & quyết định
 
 Ghi lại để mang sang máy khác hoặc mở session mới (Claude, agent) vẫn có đủ ngữ cảnh. Mới nhất ở trên.
+
+**2026-11-06: Mac mini không nạp secret công ty.** `VSF-Dev-Env` là secret của máy công ty. Chặn nó bằng
+`~/.config/secrets-env/exclude` trên Mac mini, không gỡ tag `shell-env`, để máy công ty vẫn dùng được.
+Hiện Mac mini **không nạp biến nào** (cache rỗng). Note `shell-env-refs` chỉ có dòng mẫu đang tắt.
 
 **2026-11-06: thêm template `op://` (Secret References).** Theo một tài liệu tham khảo về `op inject`/`op run`.
 Giữ cách dùng tag `shell-env`, và thêm Secure Note `shell-env-refs` chứa `TÊN=op://...` (đọc bằng `op read` khi `refresh`).
