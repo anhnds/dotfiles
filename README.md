@@ -239,6 +239,18 @@ Lưu ý:
 
 ### Tự sync định kỳ
 
+Có 2 lúc tự sync, dùng chung khoá, mốc thời gian và log (`secrets-env auto`), nên không bao giờ chạy trùng:
+
+| Khi nào | Ai chạy | Ghi chú |
+|---|---|---|
+| **~10s sau khi login** | LaunchAgent `dev.anhnds.secrets-env` (`secrets-env login`) | đưa biến `gui-env` từ cache cho GUI app ngay, chờ 10s cho app 1Password khởi động, rồi refresh. Có thể hỏi Touch ID |
+| **Mở terminal khi đã quá 12h** | `zsh/.config/zsh/secrets.zsh` | chạy ở nền, tab không bị chậm |
+
+Đổi thời gian chờ lúc login: sửa `SECRETS_ENV_LOGIN_DELAY` (mặc định 10 giây). Biến này phải đặt trong plist
+(`EnvironmentVariables`), vì launchd không đọc `local.zsh`. Sửa plist xong phải nạp lại:
+`launchctl bootout gui/$(id -u)/dev.anhnds.secrets-env; launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/dev.anhnds.secrets-env.plist`
+(nạp lại cũng chạy luôn một lần sync như lúc login).
+
 `zsh/.config/zsh/secrets.zsh` tự chạy `secrets-env refresh` **ở nền** khi bạn mở terminal, nếu lần sync gần nhất
 đã quá **12 giờ**. Tab đang mở không bị chậm, và Touch ID chỉ hỏi lúc bạn đang ngồi máy. Tab mở *sau khi* sync xong mới nhận biến mới.
 
@@ -247,10 +259,12 @@ Lưu ý:
 - Nếu huỷ Touch ID hoặc để quá 60 giây, `op` báo `authorization timeout`. Các tab sau sẽ hiện **một dòng cảnh báo vàng**
   cho tới khi `refresh` thành công, và không tự hỏi lại trước khi hết chu kỳ.
 - Tắt: `export SECRETS_ENV_AUTO=0`. Đổi chu kỳ: `export SECRETS_ENV_MAX_AGE_H=24`. Đặt cả hai trong `~/.config/zsh/local.zsh`.
-- Log: `~/.local/state/secrets/auto-sync.log`. Mốc thời gian: `~/.local/state/secrets/last-sync`.
+- Log: `~/.local/state/secrets/auto-sync.log` (mỗi lần sync có dòng `== <giờ> login` hoặc `== <giờ> auto`).
+  Mốc thời gian: `~/.local/state/secrets/last-sync`.
+- `op` lỗi (huỷ Touch ID, app 1Password chưa chạy, mất mạng) thì **cache cũ được giữ nguyên**, không bị ghi đè bằng bản rỗng.
 - Muốn sync ngay thì vẫn chạy tay `secrets-env refresh`.
 
-Vì sao không dùng LaunchAgent chạy theo lịch: app 1Password cần bạn xác nhận. Chạy lúc không có ai thì hộp thoại
+Vì sao chỉ sync lúc login và lúc mở terminal, không dùng LaunchAgent chạy theo lịch: app 1Password cần bạn xác nhận. Chạy lúc không có ai thì hộp thoại
 bật bất chợt, hoặc treo tới khi hết thời gian chờ. Muốn sync hoàn toàn tự động (cả khi chỉ SSH vào máy) thì phải dùng
 **service account** với một vault riêng, vì service account không đọc được vault Private. Chưa làm.
 
@@ -310,6 +324,10 @@ Repo public, nên:
 ## Bối cảnh & quyết định
 
 Ghi lại để mang sang máy khác hoặc mở session mới (Claude, agent) vẫn có đủ ngữ cảnh. Mới nhất ở trên.
+
+**2026-11-06: sync thêm lúc login.** LaunchAgent sẵn có chuyển sang `secrets-env login`: setenv cho GUI app từ cache,
+chờ 10s, rồi refresh. Logic khoá, mốc, log, cờ lỗi gom vào `secrets-env auto`, dùng chung với terminal.
+Sửa lỗi: refresh chạy trong `if (...)` sẽ tắt `set -e` và có thể ghi đè cache bằng bản rỗng khi `op` lỗi, nên giờ refresh chạy trong process riêng.
 
 **2026-11-06: tự sync khi mở terminal.** Chọn "refresh ở nền khi mở terminal nếu đã quá 12 giờ" thay cho LaunchAgent
 chạy theo lịch (app 1Password cần người xác nhận) và thay cho service account (phải chuyển secret sang vault riêng).

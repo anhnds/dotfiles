@@ -1,4 +1,5 @@
 # Tự sync secret từ 1Password khi mở terminal, nếu lần sync gần nhất đã quá 12 giờ.
+# (Ngoài ra LaunchAgent dev.anhnds.secrets-env cũng sync ~10s sau khi login.)
 # Chạy `secrets-env refresh` ở nền: tab đang mở không bị chậm, và Touch ID chỉ hỏi lúc bạn đang ngồi máy.
 # Tab mở SAU khi sync xong mới nhận biến mới (hoặc chạy `exec zsh`).
 #
@@ -20,22 +21,11 @@
   [[ -e $failed ]] && print -P "%F{yellow}secrets-env: lần tự sync trước bị lỗi, chạy tay: secrets-env refresh (log: $log)%f"
 
   # Mốc thời gian còn mới (chưa quá N giờ) -> bỏ qua. Glob (N.mh+N): file sửa cách đây hơn N giờ
-  local -a old lock_old
+  local -a old
   old=( $stamp(N.mh+$hours) )
   [[ -e $stamp && ${#old} == 0 ]] && return
 
-  # Khoá để nhiều tab mở cùng lúc chỉ chạy 1 lần (mkdir là thao tác nguyên tử).
-  # Khoá quá 10 phút coi như bị kẹt (process bị kill) -> gỡ.
-  local lock=$state/.auto-sync.lock
-  lock_old=( $lock(N/mm+10) )
-  (( ${#lock_old} )) && rmdir $lock 2>/dev/null
-  mkdir -p $state && mkdir $lock 2>/dev/null || return
-  touch $stamp
-  {
-    {
-      print "== $(date '+%F %T') auto sync"
-      if secrets-env refresh; then rm -f $failed; else touch $failed; fi
-    } >>$log 2>&1
-    rmdir $lock
-  } &!
+  # Khoá, mốc thời gian, log, cờ lỗi: dùng chung với lần sync lúc login (secrets-env auto)
+  [[ -d $state/.auto-sync.lock ]] && return
+  secrets-env auto >/dev/null 2>&1 &!
 }
