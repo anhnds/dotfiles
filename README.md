@@ -180,12 +180,18 @@ Gỡ symlink một package: `stow -t ~ -D <package>`.
 Mọi token/API key nằm trong **1Password cloud**, không nằm trong repo hay file config.
 `secrets-env` kéo chúng về một file cache, rồi mỗi lớp đọc từ file đó.
 
-**Quy ước trong 1Password** (vault nào cũng được, hiện dùng `Private`):
-- Item gắn tag **`shell-env`**: mỗi field là một biến môi trường, **tên field = tên biến**.
-  Ví dụ item `VSF-Dev-Env`: `JFROG_URL`, `JFROG_USER`, `JFROG_TOKEN`, `GL_VSF_TOKEN`, `ATLASSIAN_API_TOKEN`.
-- Item gắn thêm tag **`gui-env`**: các biến của item đó được đưa cả cho GUI app (VS Code, Claude desktop mở từ Dock).
-  Chỉ gắn tag này khi app thật sự cần, vì mọi GUI app đều đọc được.
-- Field rỗng, field ghi chú, hoặc tên field không hợp lệ làm tên biến (có dấu cách, `-`...) sẽ bị bỏ qua.
+**Có 2 cách khai báo secret trong 1Password** (vault nào cũng được, hiện dùng `Private`):
+
+| Cách | Khi nào dùng | Ví dụ |
+|---|---|---|
+| **A. Item tag `shell-env`**: mỗi field là một biến, **tên field = tên biến** | nhóm biến của một dự án, tạo item riêng | item `VSF-Dev-Env`: `JFROG_URL`, `JFROG_USER`, `JFROG_TOKEN`, `GL_VSF_TOKEN`, `ATLASSIAN_API_TOKEN` |
+| **B. Template `op://`**: Secure Note **`shell-env-refs`** (tag `shell-env-refs`), mỗi dòng `TÊN=op://vault/item/[section/]field` | lấy từ item **có sẵn** (Login, API Credential...) mà không phải sửa item, hoặc tự đặt tên biến | `GITHUB_TOKEN=op://Private/GitHub Personal Access Token/token` |
+
+- Gắn thêm tag **`gui-env`** vào item (cách A) hoặc vào note (cách B) thì các biến đó cũng được đưa cho GUI app
+  (VS Code, Claude desktop mở từ Dock). Chỉ gắn khi app thật sự cần, vì mọi GUI app đều đọc được.
+- Field rỗng, field ghi chú, tên không hợp lệ làm tên biến (có dấu cách, `-`...), dòng `#` trong template đều bị bỏ qua.
+- Tham chiếu `op://` lấy được bằng nút **Copy Secret Reference** trong app 1Password (chuột phải vào field).
+  Tên có dấu cách vẫn dùng được. Nếu hay đổi tên item thì dùng ID thay cho tên.
 
 **Luồng:**
 
@@ -198,11 +204,48 @@ Mọi token/API key nằm trong **1Password cloud**, không nằm trong repo hay
 
 | Lệnh | Việc |
 |---|---|
-| `secrets-env refresh` | lấy lại tất cả từ 1Password (sau khi thêm hoặc đổi secret), rồi `exec zsh` |
+| `secrets-env refresh` | lấy lại tất cả từ 1Password (sau khi thêm, sửa hoặc xoá), rồi `exec zsh` |
 | `secrets-env status` | liệt kê **tên** biến đang có, không in giá trị |
 | `secrets-env clear` | xoá cache và gỡ biến khỏi launchd |
 
-Thêm secret mới: thêm field vào item có tag `shell-env` (hoặc tạo item mới gắn tag) → `secrets-env refresh`.
+### Thêm / sửa / xoá / nạp một secret
+
+Mọi thay đổi đều làm **trong 1Password**, không sửa file cache. Sau đó luôn chạy 2 lệnh:
+
+```sh
+secrets-env refresh   # kéo lại từ 1Password (có thể hỏi Touch ID)
+exec zsh              # mở shell mới để nhận biến (tab khác: mở tab mới hoặc chạy zshexec)
+```
+
+| Việc | Cách A: item tag `shell-env` | Cách B: note `shell-env-refs` |
+|---|---|---|
+| **Thêm** | mở item (vd `VSF-Dev-Env`) → *Add field* → đặt **tên field = tên biến** (`NPM_TOKEN`), loại *Password* hoặc *Text* → lưu. Nhóm mới: tạo item mới, gắn tag `shell-env` | mở note `shell-env-refs` → thêm dòng `NPM_TOKEN=op://Private/npm/token` |
+| **Sửa giá trị** | sửa value của field | sửa ở **item gốc** mà tham chiếu trỏ tới, không cần sửa note |
+| **Đổi tên biến** | đổi tên field | đổi phần trước dấu `=` |
+| **Xoá** | xoá field (hoặc bỏ tag `shell-env` khỏi cả item) | xoá dòng hoặc thêm `#` ở đầu dòng để tắt |
+| **Cho GUI app** | gắn tag `gui-env` vào item | gắn tag `gui-env` vào note (áp dụng cho mọi dòng trong note) |
+
+Sau đó chạy `refresh` → `exec zsh` như trên. Kiểm tra bằng `secrets-env status`, hoặc `echo ${#NPM_TOKEN}` (in độ dài, không in giá trị).
+
+Lưu ý:
+- **Shell đang mở vẫn giữ giá trị cũ** cho tới khi `exec zsh`. Biến đã xoá cũng chỉ mất khỏi shell mới.
+- GUI app nhận biến mới **sau khi mở lại app**. Biến đã bỏ tag `gui-env` sẽ tự bị gỡ khỏi launchd khi `refresh`.
+- Tham chiếu hỏng (item bị đổi tên hoặc xoá) thì `refresh` báo `không đọc được TÊN (...)`, bỏ qua biến đó và vẫn ghi các biến khác.
+- Hai nơi cùng khai báo một tên biến: `refresh` cảnh báo trùng, và nơi được đọc sau thắng (template `op://` đọc sau cùng).
+- Đừng đặt `GITHUB_TOKEN`/`GH_TOKEN` trừ khi token còn sống: `gh` ưu tiên biến này hơn phiên đăng nhập keyring.
+  (PAT `GitHub Personal Access Token` hiện **đã hết hiệu lực**, GitHub trả 401, nên dòng mẫu trong note đang tắt.)
+
+### Secret quan trọng: `op run`, không vào cache
+
+Token production, khoá thanh toán... không nên nằm trong cache hay có trong mọi shell. Khai báo chúng trong một file
+`.env` chứa tham chiếu (file không chứa secret, nhưng **đừng commit vào repo public** vì lộ tên vault và item), rồi chạy:
+
+```sh
+# prod.env:  STRIPE_KEY=op://Private/Stripe/secret_key
+op run --env-file=prod.env -- ./deploy.sh
+```
+
+Secret chỉ tồn tại trong process đó, và nếu bị in ra output thì `op run` tự che bằng `<concealed by 1Password>`.
 
 **SSH: hai chuyện khác nhau**
 - *SSH key* (đăng nhập GitHub, server, ký commit) **không** đi qua `secrets-env`, mà qua **1Password SSH Agent**:
@@ -233,6 +276,11 @@ Repo public, nên:
 ## Bối cảnh & quyết định
 
 Ghi lại để mang sang máy khác hoặc mở session mới (Claude, agent) vẫn có đủ ngữ cảnh. Mới nhất ở trên.
+
+**2026-11-06: thêm template `op://` (Secret References).** Theo một tài liệu tham khảo về `op inject`/`op run`.
+Giữ cách dùng tag `shell-env`, và thêm Secure Note `shell-env-refs` chứa `TÊN=op://...` (đọc bằng `op read` khi `refresh`).
+Template để trong 1Password chứ không ở repo, vì repo public sẽ lộ tên vault và item. Secret quan trọng thì dùng `op run`, không cho vào cache.
+PAT GitHub trong 1Password đã chết (401), nên chưa export `GITHUB_TOKEN`.
 
 **2026-11-06: Brewfile tự cập nhật.** Homebrew không có hook sau khi cài, nên dùng hàm bọc `brew()` (`zsh/.config/zsh/functions.zsh`):
 sau install/uninstall/tap nó chạy `brew bundle dump --force`. Không tự commit, để còn xem diff trước.
