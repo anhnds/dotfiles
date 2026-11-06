@@ -150,10 +150,13 @@ cd ~/workspace/dotfiles && git pull && ./install.sh
 ### Cài tool mới
 
 ```sh
-brew install <tool>
-brew bundle dump --file=~/workspace/dotfiles/Brewfile --force   # cập nhật Brewfile
+brew install <tool>        # hàm brew() trong functions.zsh tự dump lại Brewfile
+dotfiles && git diff Brewfile
 git commit -am "brew: thêm <tool>"
 ```
+
+Hàm `brew()` tự cập nhật Brewfile sau `install`, `uninstall`, `reinstall`, `tap`, `untap`, nhưng không tự commit.
+Gói cài bằng `npm install -g` thì cần tự chạy `brew bundle dump --force --file=~/workspace/dotfiles/Brewfile`.
 
 Dọn tool không có trong Brewfile: `brew bundle cleanup --file=Brewfile` (xem trước), thêm `--force` để xoá.
 
@@ -221,6 +224,9 @@ Repo public, nên:
 ## Bối cảnh & quyết định
 
 Ghi lại để mang sang máy khác hoặc mở session mới (Claude, agent) vẫn có đủ ngữ cảnh. Mới nhất ở trên.
+
+**2026-11-06: Brewfile tự cập nhật.** Homebrew không có hook sau khi cài, nên dùng hàm bọc `brew()` (`zsh/.config/zsh/functions.zsh`):
+sau install/uninstall/tap nó chạy `brew bundle dump --force`. Không tự commit, để còn xem diff trước.
 
 **2026-11-06: Ghostty → Rex.** Terminal chính giờ là Rex (`/Applications/Rex Beta.app`, cài tay, không có trong Brewfile).
 Rex **không** đọc config Ghostty: nó chỉ dùng engine hiển thị `swift-ghostty`, keybind cũ đã được import một lần vào

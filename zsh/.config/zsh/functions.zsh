@@ -24,3 +24,15 @@ gto() {
   local d
   d=$(fd --type d --hidden --exclude .git . ~ | fzf) && cd "$d"
 }
+
+# brew: sau khi cài/gỡ gói, tự cập nhật Brewfile trong dotfiles.
+# Không tự commit: xem `git diff Brewfile` rồi commit `brew: ...`.
+# Gói npm global (npm install -g) thì vẫn phải tự chạy: brew bundle dump --force
+brew() {
+  command brew "$@" || return
+  case "$1" in
+    install|uninstall|remove|rm|reinstall|tap|untap)
+      command brew bundle dump --force --file="$HOME/workspace/dotfiles/Brewfile" &&
+        echo "→ Đã cập nhật Brewfile (dotfiles: git diff Brewfile)" ;;
+  esac
+}
