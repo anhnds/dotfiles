@@ -1,0 +1,13 @@
+# ~/.config/git/config  (symlink -> dotfiles/git/.config/git/config)
+[user]
+	name = Nguyen Duy Anh
+	email = anh.ndns@gmail.com
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
+[push]
+	autoSetupRemote = true
+[core]
+	editor = nvim
+# Global ignore: ~/.config/git/ignore (git tự đọc, không cần khai báo)

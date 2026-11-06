@@ -1,1 +1,5 @@
 *.bak
+.DS_Store
+# secrets / config riêng từng máy
+zsh/.config/zsh/local.zsh
+*.local
