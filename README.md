@@ -189,6 +189,7 @@ Mọi token/API key nằm trong **1Password cloud**, không nằm trong repo hay
 
 - Gắn thêm tag **`gui-env`** vào item (cách A) hoặc vào note (cách B) thì các biến đó cũng được đưa cho GUI app
   (VS Code, Claude desktop mở từ Dock). Chỉ gắn khi app thật sự cần, vì mọi GUI app đều đọc được.
+- Trong note `shell-env-refs`, vế phải **bắt buộc là `op://...`**. Không ghi giá trị thẳng vào note, vì note là text thường, không được che như field Password.
 - Field rỗng, field ghi chú, tên không hợp lệ làm tên biến (có dấu cách, `-`...), dòng `#` trong template đều bị bỏ qua.
 - Tham chiếu `op://` lấy được bằng nút **Copy Secret Reference** trong app 1Password (chuột phải vào field).
   Tên có dấu cách vẫn dùng được. Nếu hay đổi tên item thì dùng ID thay cho tên.
