@@ -2,6 +2,7 @@
 [user]
 	name = Nguyen Duy Anh
 	email = anh.ndns@gmail.com
+	signingkey = ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC1BOkztjJYZaXfUE+a5Fm7kFYaBA4yY9ykbZXuWoJysDFQcx1J6PayrJYm0f28N1q2ZeMIVicQLMnY1V9s8lWpkhY6Qk3DmSNDh8tHVxRr6Hs2RW5TwkUwba+6UM31JfHgqkiiuFAomBQB0DJdvPA22abwg6o0Hu8z9S25cXmk/+3kZXH+8yCI1OXoTHNfZWkZrNSGWQaRQOCLiN7sdDj7rsulOz5qtkDGvosbdoF1Kj1dy8H/Iw95ERJk62sXVSw0+jFvU4aAgbUx5r8tyn4jkX+pE+yJQX4wGj6M53pfLVCjHGV6J2E5xHhugSVfVAnj2hBao/JHGRfUNHeb5Hp7ujiWI2onQ3dBiRnpPQjWGiU2EvClsLZCkU8dqX1xN1fnPN6Mjo5eDPVBo5tKQGeONLsSV+LEw8d8CnQIG2X+tzfVIlUdOe7fq+LTefqFv6B8hqbOOYvTP4ZaZClxI+dnNWsM1XrOro0LlnvC9Et5cK59f8/oN09J3j5rtCdbclj1rmNQd+3uu6eRyqN7fUiuIWA2CVPLHC9AT8XEJmK4c7zpmHOVYL4nSZyICavy1grxAwpZ60TUX7OrTTPipJLNVdOIDCXwT3pgiaxCFFXrwFsMDaB67+TAdUnTLQrY/WP1KydgAUCr7FPDluxV5W2kv3lwDh8lWvWpnPHfkn4ysw==
 [init]
 	defaultBranch = main
 [pull]
@@ -11,3 +12,9 @@
 [core]
 	editor = nvim
 # Global ignore: ~/.config/git/ignore (git tự đọc, không cần khai báo)
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+[commit]
+	gpgsign = true

@@ -16,12 +16,12 @@ brew "gh"
 brew "glab"
 # GNU implementation of the famous stream editor
 brew "gnu-sed"
-# Simple terminal UI for git commands
-brew "lazygit"
 # Ambitious Vim-fork focused on extensibility and agility
 brew "neovim"
 # Open-source, cross-platform JavaScript runtime environment
 brew "node"
+# Cryptography and SSL/TLS Toolkit
+brew "openssl@3"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
 # Fast, disk space efficient package manager
@@ -34,10 +34,6 @@ brew "stow"
 brew "tmux"
 # Display directories as trees (with optional color/HTML output)
 brew "tree"
-# Parser generator tool
-brew "tree-sitter-cli"
-# Feature-rich command-line audio/video downloader
-brew "yt-dlp"
 # Fish-like fast/unobtrusive autosuggestions for zsh
 brew "zsh-autosuggestions"
 # Fish shell like syntax highlighting for zsh
@@ -66,3 +62,4 @@ vscode "biomejs.biome"
 vscode "github.github-vscode-theme"
 vscode "google.google-antigravity"
 vscode "willasm.obsidian-md-vsc"
+npm "gitnexus"

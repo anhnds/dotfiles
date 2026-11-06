@@ -10,9 +10,6 @@ export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --e
 # autojump (j <dir>)
 [ -f "$HOMEBREW_PREFIX/etc/profile.d/autojump.sh" ] && . "$HOMEBREW_PREFIX/etc/profile.d/autojump.sh"
 
-# x-cmd
-[ -f "$HOME/.x-cmd.root/X" ] && . "$HOME/.x-cmd.root/X"
-
 # Ctrl-x Ctrl-e: sửa dòng lệnh bằng nvim
 autoload -Uz edit-command-line
 zle -N edit-command-line

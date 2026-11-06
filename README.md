@@ -1,6 +1,7 @@
 # dotfiles
 
-Config terminal & tool cho macOS: zsh, Neovim (LazyVim), Ghostty, git, kèm danh sách Homebrew.
+Config terminal & tool cho macOS: zsh, Neovim (bản nhẹ), Ghostty, git, kèm danh sách Homebrew.
+Editor chính là VS Code; nvim chỉ dùng để sửa file nhanh trong terminal (`$EDITOR`, git commit, `ff`).
 Quản lý bằng **GNU Stow**: repo là bản gốc, còn `$HOME` chỉ chứa symlink trỏ vào repo.
 
 > ⚠️ Repo **public**: tuyệt đối không commit token, key, mật khẩu. Xem mục [Bảo mật](#bảo-mật).
@@ -14,7 +15,7 @@ xcode-select --install
 # 2. Clone (cần SSH key đã add vào GitHub; hoặc dùng URL https)
 git clone git@github.com:anhnds/dotfiles.git ~/workspace/dotfiles
 
-# 3. Cài: Homebrew + Brewfile + oh-my-zsh + symlink
+# 3. Cài: Homebrew + Brewfile + tool AI + oh-my-zsh + symlink
 cd ~/workspace/dotfiles && ./install.sh
 ```
 
@@ -29,8 +30,8 @@ Mỗi thư mục cấp 1 là một **package** của Stow. Bên trong package m�
 ```
 dotfiles/
 ├── README.md
-├── Brewfile                  # tất cả tool: brew, cask, font, VS Code extension
-├── install.sh                # brew bundle + oh-my-zsh + stow
+├── Brewfile                  # brew, cask, font, npm global, VS Code extension
+├── install.sh                # brew bundle + tool AI + oh-my-zsh + stow
 ├── zsh/
 │   ├── .zprofile             # → ~/.zprofile   env + PATH
 │   ├── .zshrc                # → ~/.zshrc      oh-my-zsh, source modules, plugins
@@ -39,12 +40,65 @@ dotfiles/
 │       ├── aliases.zsh
 │       ├── functions.zsh     #   ff, to, gff, gto
 │       └── local.zsh         #   (gitignored) secrets / config riêng từng máy
-├── nvim/.config/nvim/        # → ~/.config/nvim  (LazyVim, giữ lazy-lock.json)
+├── nvim/.config/nvim/        # → ~/.config/nvim  (xem mục Neovim)
 ├── ghostty/.config/ghostty/  # → ~/.config/ghostty
 └── git/.config/git/          # → ~/.config/git   config + global ignore
 ```
 
 Ưu tiên đặt config ở `~/.config/<tool>` (chuẩn XDG) thay vì rải file ẩn trong `$HOME`.
+
+## Tool ngoài Homebrew
+
+`install.sh` tự cài nếu máy chưa có:
+
+| Tool | Cài bằng | Ghi chú |
+|---|---|---|
+| gitnexus | npm (có trong Brewfile) | cần build native; installer tự chạy `npm install -g --allow-scripts=...`; cần `openssl@3` |
+| code-review-graph (`crg`) | pipx | |
+| Antigravity CLI (`agy`) | script `antigravity.google/cli/install.sh` | installer có thể ghi thêm PATH vào `~/.zprofile`, nên xoá dòng đó vì đã có sẵn |
+| oh-my-zsh | script chính thức | |
+
+## Neovim
+
+Config nhẹ, chuyển từ config vim cũ (gist `macbook.vim`, 2020) sang Lua. Mở trong khoảng 20ms.
+
+```
+nvim/.config/nvim/
+├── init.lua               # leader = Space, nạp 3 module bên dưới
+├── nvim-pack-lock.json    # khoá phiên bản plugin (commit file này)
+└── lua/config/
+    ├── options.lua        # số dòng, tab 4 space, clipboard macOS, tắt chuột...
+    ├── keymaps.lua        # phím không cần plugin
+    └── plugins.lua        # mini.nvim + fzf-lua
+```
+
+Chỉ 2 plugin, cài bằng `vim.pack` có sẵn trong nvim 0.12, không cần lazy.nvim:
+
+| Plugin cũ | Giờ dùng |
+|---|---|
+| vim-plug | `vim.pack` (built-in) |
+| NERDTree | `mini.files` |
+| fzf.vim | `fzf-lua` |
+| vim-airline | `mini.statusline` + `mini.tabline` |
+| vim-leader-guide | `mini.clue` |
+| git-blame.vim, fugitive | `mini.git` + `mini.diff` |
+| tagbar, monokai | bỏ (dùng VS Code; màu theo theme terminal) |
+
+| Phím | Việc |
+|---|---|
+| `Ctrl-p` | tìm file |
+| `Space /` | tìm nội dung (ripgrep) |
+| `Space r` | file mở gần đây |
+| `Ctrl-b` | cây thư mục tại file hiện tại (bấm lại để đóng) |
+| `Ctrl-t` | tab mới |
+| `Space l` / `Space h` | buffer sau / trước |
+| `Space bl` / `Space bd` | danh sách buffer / đóng buffer |
+| `Space wv` / `wh` / `wc` | chia dọc / chia ngang / đóng cửa sổ |
+| `Space gb` | git: lịch sử dòng tại con trỏ |
+| `Space gd` | git: xem diff trong file |
+| `Space` (chờ) | hiện gợi ý phím |
+
+Cập nhật plugin: `:lua vim.pack.update()` → xem thay đổi → `:write` để áp dụng, rồi commit `nvim-pack-lock.json`.
 
 ## zsh load file theo thứ tự nào
 

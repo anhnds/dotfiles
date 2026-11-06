@@ -24,13 +24,35 @@ fi
 info "brew bundle"
 brew bundle --no-upgrade --file="$DOTFILES/Brewfile"   # chỉ cài cái thiếu, không tự update
 
-# 3. oh-my-zsh (zshrc cần)
+# 3. Tool AI ngoài Homebrew
+# gitnexus (npm, khai báo trong Brewfile): npm 11 chặn build script native,
+# nên cài lại với danh sách được phép nếu binary native chưa load được.
+GITNEXUS_SCRIPTS="gitnexus,@ladybugdb/core,onnxruntime-node,protobufjs,tree-sitter,tree-sitter-c-sharp,tree-sitter-cpp,tree-sitter-go,tree-sitter-java,tree-sitter-javascript,tree-sitter-php,tree-sitter-python,tree-sitter-ruby,tree-sitter-rust,tree-sitter-typescript"
+if ! node -e "require('$(npm root -g)/gitnexus/node_modules/@ladybugdb/core')" >/dev/null 2>&1; then
+  info "Cài gitnexus (kèm build native)"
+  npm install -g gitnexus --allow-scripts="$GITNEXUS_SCRIPTS"
+fi
+
+# code-review-graph (pipx)
+if ! pipx list --short 2>/dev/null | grep -q '^code-review-graph '; then
+  info "Cài code-review-graph"
+  pipx install code-review-graph
+fi
+
+# Antigravity CLI (agy) -> ~/.local/bin. Installer có thể ghi thêm PATH vào ~/.zprofile:
+# ~/.zprofile đã có sẵn ~/.local/bin nên xoá dòng đó đi (git diff sẽ thấy).
+if ! command -v agy >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/agy" ]; then
+  info "Cài Antigravity CLI"
+  curl -fsSL https://antigravity.google/cli/install.sh | bash
+fi
+
+# 4. oh-my-zsh (zshrc cần)
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
   info "Cài oh-my-zsh"
   RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
-# 4. Symlink bằng Stow
+# 5. Symlink bằng Stow
 mkdir -p "$HOME/.config"
 cd "$DOTFILES"
 for pkg in "${PACKAGES[@]}"; do
