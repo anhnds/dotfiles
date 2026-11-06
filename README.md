@@ -240,7 +240,7 @@ code-review-graph (pipx), Antigravity CLI `agy`. Hook của Rex trong Claude set
 
 **2026-11-06: tái cấu trúc bằng Stow.** Trước đó chỉ có `zshrc` + Ghostty symlink tay. Chuyển sang package Stow, XDG,
 `Brewfile`, `install.sh`. Tách `.zprofile` (env/PATH) khỏi `.zshrc` (tương tác), thêm `typeset -U path PATH`
-vì PATH từng bị trùng. Bật ký commit bằng SSH qua 1Password (`op-ssh-sign`). Backup config cũ ở `~/dotfiles-backup-20261106/`.
+vì PATH từng bị trùng. Bật ký commit bằng SSH qua 1Password (`op-ssh-sign`). Backup config cũ (`~/dotfiles-backup-20261106/`) đã xoá sau khi chạy ổn.
 
 **Quy ước chung:** repo public, không chứa secret. Commit prefix theo package. `brew bundle --no-upgrade`
 để installer không tự nâng cấp app. SSH key GitHub nằm trong 1Password SSH agent (`~/.ssh/config`, không có trong repo).
