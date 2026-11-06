@@ -75,6 +75,7 @@ Config nhẹ, chuyển từ config vim cũ (gist `macbook.vim`, 2020) sang Lua. 
 nvim/.config/nvim/
 ├── init.lua               # leader = Space, nạp 3 module bên dưới
 ├── nvim-pack-lock.json    # khoá phiên bản plugin (commit file này)
+├── cheatsheet.md          # bảng phím: config riêng + plugin + vim cơ bản (Space ?)
 └── lua/config/
     ├── options.lua        # số dòng, tab 4 space, clipboard macOS, tắt chuột...
     ├── keymaps.lua        # phím không cần plugin
@@ -106,6 +107,7 @@ Chỉ 2 plugin, cài bằng `vim.pack` có sẵn trong nvim 0.12, không cần l
 | `Space gb` | git: lịch sử dòng tại con trỏ |
 | `Space gd` | git: xem diff trong file |
 | `Space` (chờ) | hiện gợi ý phím |
+| `Space ?` | mở cheatsheet đầy đủ (`nvim/.config/nvim/cheatsheet.md`) |
 
 Cập nhật plugin: `:lua vim.pack.update()` → xem thay đổi → `:write` để áp dụng, rồi commit `nvim-pack-lock.json`.
 
