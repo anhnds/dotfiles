@@ -204,6 +204,13 @@ Mọi token/API key nằm trong **1Password cloud**, không nằm trong repo hay
 
 Thêm secret mới: thêm field vào item có tag `shell-env` (hoặc tạo item mới gắn tag) → `secrets-env refresh`.
 
+**SSH: hai chuyện khác nhau**
+- *SSH key* (đăng nhập GitHub, server, ký commit) **không** đi qua `secrets-env`, mà qua **1Password SSH Agent**:
+  `~/.ssh/config` có `IdentityAgent` trỏ tới agent của 1Password, private key không bao giờ nằm trên ổ đĩa,
+  `~/.ssh` chỉ chứa file `.pub` để chọn đúng key cho từng host. Ngoại lệ: `id_ed25519_gitlab_local`
+  (GitLab Docker ở `localhost:2224`) là private key nằm trên ổ đĩa.
+- *SSH vào máy này* (`ssh mac-mini 'cmd'`): zsh vẫn đọc `~/.zshenv`, nên các biến `shell-env` **có** trong phiên SSH.
+
 Vì sao làm như vậy:
 - **Shell không gọi `op` lúc khởi động**: tránh chậm và tránh hỏi Touch ID mỗi lần mở tab. Cache chỉ đổi khi bạn chạy `refresh`.
 - **Dùng tích hợp app 1Password, không dùng service account**: service account không đọc được vault Private.
