@@ -4,7 +4,7 @@
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
-PACKAGES=(zsh nvim ghostty git)   # mỗi thư mục = 1 package Stow
+PACKAGES=(zsh nvim ghostty git secrets)   # mỗi thư mục = 1 package Stow
 
 info() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33mWARN:\033[0m %s\n' "$*"; }
@@ -65,6 +65,13 @@ for pkg in "${PACKAGES[@]}"; do
   stow -t "$HOME" -R "$pkg"
   info "stow $pkg ✓"
 done
+
+# 6. LaunchAgent nạp secret cho GUI app lúc login (xem README > Secrets)
+AGENT="dev.anhnds.secrets-env"
+if ! launchctl print "gui/$(id -u)/$AGENT" >/dev/null 2>&1; then
+  launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/$AGENT.plist" && info "LaunchAgent $AGENT ✓"
+fi
+[ -r "$HOME/.local/state/secrets/env.sh" ] || warn "Chưa có secret cache: mở khoá app 1Password rồi chạy 'secrets-env refresh'"
 
 # Ghostty trên macOS cũng đọc file ở Application Support và file đó sẽ ghi đè ~/.config/ghostty
 GHOSTTY_APP="$HOME/Library/Application Support/com.mitchellh.ghostty"
