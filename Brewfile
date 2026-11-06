@@ -49,8 +49,6 @@ cask "claude-code"
 # Colemak mod for more comfortable typing (DH variant)
 cask "colemak-dh"
 cask "font-jetbrains-mono-nerd-font"
-# Terminal emulator that uses platform-native UI and GPU acceleration
-cask "ghostty"
 # Replacement for Docker Desktop
 cask "orbstack"
 # Native database client for many database types

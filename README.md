@@ -1,6 +1,6 @@
 # dotfiles
 
-Config terminal & tool cho macOS: zsh, Neovim (bản nhẹ), Ghostty, git, kèm danh sách Homebrew.
+Config terminal & tool cho macOS: zsh, Neovim (bản nhẹ), Rex (terminal), git, kèm danh sách Homebrew.
 Editor chính là VS Code; nvim chỉ dùng để sửa file nhanh trong terminal (`$EDITOR`, git commit, `ff`).
 Quản lý bằng **GNU Stow**: repo là bản gốc, còn `$HOME` chỉ chứa symlink trỏ vào repo.
 
@@ -47,7 +47,7 @@ dotfiles/
 │       ├── functions.zsh     #   ff, to, gff, gto
 │       └── local.zsh         #   (gitignored) config riêng từng máy
 ├── nvim/.config/nvim/        # → ~/.config/nvim  (xem mục Neovim)
-├── ghostty/.config/ghostty/  # → ~/.config/ghostty
+├── rex/.config/rex/          # → ~/.config/rex   init.lua: keybind của Rex (theme, font lưu trong app)
 ├── git/.config/git/          # → ~/.config/git   config, global ignore, ký commit qua 1Password
 └── secrets/                  # xem mục Secrets
     ├── .local/bin/secrets-env
@@ -139,7 +139,7 @@ git commit -m "zsh: thêm alias k=kubectl"
 git push
 ```
 
-**Commit message** dùng prefix theo package: `zsh:`, `nvim:`, `ghostty:`, `git:`, `brew:`, `install:`, `docs:`.
+**Commit message** dùng prefix theo package: `zsh:`, `nvim:`, `rex:`, `git:`, `brew:`, `install:`, `docs:`.
 
 **Máy khác** cập nhật:
 
@@ -221,6 +221,11 @@ Repo public, nên:
 ## Bối cảnh & quyết định
 
 Ghi lại để mang sang máy khác hoặc mở session mới (Claude, agent) vẫn có đủ ngữ cảnh. Mới nhất ở trên.
+
+**2026-11-06: Ghostty → Rex.** Terminal chính giờ là Rex (`/Applications/Rex Beta.app`, cài tay, không có trong Brewfile).
+Rex **không** đọc config Ghostty: nó chỉ dùng engine hiển thị `swift-ghostty`, keybind cũ đã được import một lần vào
+`~/.config/rex/init.lua`, còn theme (`midnight-tundra` / `merino-light`) và font lưu trong settings của app
+(`defaults read com.superlogical.rex`). Đã xoá package `ghostty/` (vẫn còn trong git history) và gỡ cask Ghostty.
 
 **2026-11-06: secrets từ 1Password.** Tham khảo setup trên máy khác. Mac mini kéo **trực tiếp từ 1Password cloud**,
 không kết nối tới máy kia. Dùng lại quy ước tag `shell-env` đã có (item `VSF-Dev-Env`). Thiết kế 1 nguồn (cache) và 3 lớp:

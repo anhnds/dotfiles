@@ -11,7 +11,7 @@ alias dotfiles='cd ~/workspace/dotfiles'
 alias zshcf='nvim ~/.zshrc'
 alias zshexec='exec zsh'                     # mở shell sạch thay vì source lại
 alias nvimcf='nvim ~/.config/nvim'
-alias ghosttycf='nvim ~/.config/ghostty/config.ghostty'
+alias rexcf='nvim ~/.config/rex/init.lua'
 
 alias crg="yes | code-review-graph install --platform antigravity --platform claude-code && code-review-graph build"
 alias claude="claude --dangerously-skip-permissions"

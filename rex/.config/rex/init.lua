@@ -1,0 +1,2 @@
+-- Rex config, migrated from Herdr and Ghostty.
+-- No source binding has a Rex counterpart; cmd+k keeps Rex's session picker.
